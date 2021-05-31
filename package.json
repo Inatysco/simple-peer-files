@@ -1,6 +1,6 @@
 {
-  "name": "simple-peer-files",
-  "version": "1.2.3",
+  "name": "@inatysco/simple-peer-files",
+  "version": "1.2.4",
   "description": "Simple library to easily transfer files over WebRTC (simple-peer). Allows resuming of files after interrupted transfer.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/subins2000/simple-peer-files.git"
+    "url": "git://github.com/Inatysco/simple-peer-files.git"
   },
   "bugs": {
     "url": "https://github.com/subins2000/simple-peer-files/issues"
@@ -56,5 +56,8 @@
     "plugins": [
       "@typescript-eslint/eslint-plugin"
     ]
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   }
 }

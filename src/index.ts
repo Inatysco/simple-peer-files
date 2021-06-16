@@ -75,7 +75,7 @@ export default class SimplePeerFiles {
     })
   }
 
-  receive (peer: Peer, fileID: string) {
+  receive (peer: Peer, fileID: string, writer) {
     return new Promise(resolve => {
       const controlChannel = peer
 
@@ -116,7 +116,7 @@ export default class SimplePeerFiles {
           pfs = this.arrivals[fileID]
           pfs.setPeer(fileChannel)
         } else {
-          pfs = new PeerFileReceive(fileChannel)
+          pfs = new PeerFileReceive(fileChannel, writer)
           this.arrivals[fileID] = pfs
         }
 

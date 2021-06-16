@@ -144,7 +144,7 @@ export default class PeerFileSend extends EventEmitter<Events> {
   }
 
   // Start sending file to receiver
-  _resume () {
+  _resume (reader) {
     if (this.receiverPaused) return
 
     if (this.offset === 0) {
@@ -153,11 +153,18 @@ export default class PeerFileSend extends EventEmitter<Events> {
       this.emit('progress', 0.0, 0)
     }
 
-    // Chunk sending
-    const stream = read(this.file, {
-      offset: this.offset,
-      chunkSize: CHUNK_SIZE
-    })
+    let stream = null;
+    if(reader) {
+      stream = reader.read(this.file, {
+        offset: this.offset,
+        chunkSize: CHUNK_SIZE
+      });
+    } else {
+      stream = read(this.file, {
+        offset: this.offset,
+        chunkSize: CHUNK_SIZE
+      });
+    }
 
     this.ss = new SendStream(this.file.size, this.offset)
     this.ss.on('progress', (percentage, bytes) => {
@@ -167,7 +174,7 @@ export default class PeerFileSend extends EventEmitter<Events> {
     stream.pipe(this.ss).pipe(this.peer)
   }
 
-  start () {
+  start (reader) {
     // Listen for cancel requests
     this.peer.on('data', (data: Uint8Array) => {
       if (data[0] === ControlHeaders.FILE_END) {
@@ -182,7 +189,7 @@ export default class PeerFileSend extends EventEmitter<Events> {
         this.receiverPaused = false
 
         if (!this.paused) {
-          this._resume()
+          this._resume(reader)
           this.emit('resumed')
         }
       } else if (data[0] === ControlHeaders.TRANSFER_CANCEL) {
@@ -193,7 +200,7 @@ export default class PeerFileSend extends EventEmitter<Events> {
       }
     })
 
-    this._resume()
+    this._resume(reader)
   }
 
   // Pause transfer and store the bytes sent till now for resuming later
@@ -212,10 +219,10 @@ export default class PeerFileSend extends EventEmitter<Events> {
   }
 
   // Allow data to be sent & start sending data
-  resume () {
+  resume (reader) {
     this.sendPeer(ControlHeaders.TRANSFER_RESUME)
     this.paused = false
-    this._resume()
+    this._resume(reader)
     this.emit('resume')
   }
 

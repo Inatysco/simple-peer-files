@@ -7,7 +7,7 @@ import { ControlHeaders, FileStartMetadata } from './Meta'
 interface Events {
   progress(percentage: number, bytesSent: number): void,
 
-  done(receivedFile: File): void
+  done(): void
 
   // Called when receiver (this) has requested a pause
   pause(): void
@@ -69,10 +69,11 @@ export default class PeerFileReceive extends EventEmitter<Events> {
   private fileData = [];
   private fileStream: Readable = null;
   public fileType!: string;
+  private writer = null;
 
-  constructor (peer: SimplePeer.Instance) {
+  constructor (peer: SimplePeer.Instance, writer) {
     super()
-
+    this.writer = writer;
     this.setPeer(peer)
   }
 
@@ -94,34 +95,11 @@ export default class PeerFileReceive extends EventEmitter<Events> {
       this.fileData = []
     })
     this.rs.on('chunk', chunk => {
-      this.fileData.push(chunk)
-
-      if (this.fileStream) {
-        this.fileStream.push(chunk)
-      }
-
-      this.bytesReceived += chunk.byteLength
-
-      if (this.bytesReceived === this.fileSize) {
-        // completed
-        this.sendPeer(ControlHeaders.FILE_END)
-
-        if (this.fileStream) this.fileStream.push(null) // EOF
-
-        const file = new window.File(
-          this.fileData,
-          this.fileName,
-          {
-            type: this.fileType
-          }
-        )
-
-        this.emit('progress', 100.0, this.fileSize)
-        this.emit('done', file)
-      } else {
-        const percentage = parseFloat((100 * (this.bytesReceived / this.fileSize)).toFixed(3))
-
-        this.emit('progress', percentage, this.bytesReceived)
+      const progress = this.writer.write(chunk);
+      this.emit('progress', progress, this.bytesReceived);
+      if (progress === 100.0) {
+        this.sendPeer(ControlHeaders.FILE_END);
+        this.emit('done');
       }
     })
     this.rs.on('paused', () => {

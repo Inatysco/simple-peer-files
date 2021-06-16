@@ -26,6 +26,8 @@ interface Events {
 
   // Called when the sender cancels the transfer
   cancelled(): void
+
+  error(reason?: string): void
 }
 
 class ReceiveStream extends Writable {
@@ -85,7 +87,9 @@ export default class PeerFileReceive extends EventEmitter<Events> {
 
     this.rs = new ReceiveStream()
     this.peer = peer
-
+    this.peer.on("error", err => {
+      this.emit('error', JSON.stringify(err, null, 2));
+    });
     peer.pipe(this.rs)
 
     this.rs.on('start', meta => {

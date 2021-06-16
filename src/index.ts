@@ -70,7 +70,6 @@ export default class SimplePeerFiles {
 
         resolve(pfs)
       })
-
       controlChannel.on('data', controlDataHandler)
     })
   }
@@ -139,7 +138,6 @@ export default class SimplePeerFiles {
 
         resolve(pfs)
       })
-
       controlChannel.on('data', controlDataHandler)
     })
   }

@@ -29,6 +29,8 @@ interface Events {
 
   // Called when the receiver has requested a cancel
   cancelled(): void
+
+  error(reason?: string): void
 }
 
 /**
@@ -112,6 +114,9 @@ export default class PeerFileSend extends EventEmitter<Events> {
     super()
 
     this.peer = peer
+    this.peer.on("error", err => {
+      this.emit('error', JSON.stringify(err, null, 2));
+    });
     this.file = file
     this.offset = offset
   }

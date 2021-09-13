@@ -1,6 +1,6 @@
 {
   "name": "@inatysco/simple-peer-files",
-  "version": "1.2.9",
+  "version": "1.2.11",
   "description": "Simple library to easily transfer files over WebRTC (simple-peer). Allows resuming of files after interrupted transfer.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,13 +17,16 @@
   "scripts": {
     "dev": "tsc -w",
     "lint": "standardx src/**/*.ts test/*.js --fix",
-    "test": "standardx src/**/*.ts test/*.js && airtap --local test/*.js"
+    "test": "standardx src/**/*.ts test/*.js && airtap --local test/*.js",
+    "build": "tsc",
+    "publish-lib": "npm run build && npm publish"
   },
   "dependencies": {
     "ee-ts": "^1.0.2",
     "filereader-stream": "^2.0.0",
     "readable-stream": "^3.6.0",
-    "simple-peer": "^9.7.2"
+    "simple-peer": "^9.7.2",
+    "@types/simple-peer": "^9.11.0"
   },
   "devDependencies": {
     "@types/node": "^14.0.27",

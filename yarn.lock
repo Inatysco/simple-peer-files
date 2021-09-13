@@ -56,6 +56,13 @@
     "@types/node" "*"
     safe-buffer "*"
 
+"@types/simple-peer@^9.11.0":
+  version "9.11.2"
+  resolved "https://registry.yarnpkg.com/@types/simple-peer/-/simple-peer-9.11.2.tgz#6ae3ec1b2b4500119610d1e465d02b499975858d"
+  integrity sha512-f8y4OTtqWo4m8WnoXKdZNE0Jh3zLTXAlCsKPC+xTOKcf0SEjsDhW0mrbOwaowNHqXrO77GhW1kCAsDLbq4I6Xw==
+  dependencies:
+    "@types/node" "*"
+
 "@typescript-eslint/eslint-plugin@^3.8.0":
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-3.8.0.tgz#f82947bcdd9a4e42be7ad80dfd61f1dc411dd1df"

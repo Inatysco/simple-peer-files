@@ -159,7 +159,9 @@ export default class PeerFileSend extends EventEmitter<Events> {
     }
 
     let stream = null;
-    if(reader) {
+    if(reader instanceof Duplex) {
+      stream = reader;
+    } else if(reader) {
       stream = reader.read(this.file, {
         offset: this.offset,
         chunkSize: CHUNK_SIZE

@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'readable-stream'
+import {Duplex, Readable, Writable} from 'readable-stream'
 import { EventEmitter } from 'ee-ts'
 import SimplePeer from 'simple-peer'
 
@@ -71,9 +71,9 @@ export default class PeerFileReceive extends EventEmitter<Events> {
   private fileData = [];
   private fileStream: Readable = null;
   public fileType!: string;
-  private writer = null;
+  private writer: Duplex = null;
 
-  constructor (peer: SimplePeer.Instance, writer) {
+  constructor (peer: SimplePeer.Instance, writer: Duplex) {
     super()
     this.writer = writer;
     this.setPeer(peer)
@@ -92,6 +92,14 @@ export default class PeerFileReceive extends EventEmitter<Events> {
     });
     peer.pipe(this.rs)
 
+    this.writer.on('progress', p => {
+      this.emit('progress', p, this.bytesReceived);
+      if (p === 100.0) {
+        this.sendPeer(ControlHeaders.FILE_END);
+        this.emit('done');
+      }
+    });
+
     this.rs.on('start', meta => {
       this.fileName = meta.fileName
       this.fileSize = meta.fileSize
@@ -99,12 +107,7 @@ export default class PeerFileReceive extends EventEmitter<Events> {
       this.fileData = []
     })
     this.rs.on('chunk', chunk => {
-      const progress = this.writer.write(chunk);
-      this.emit('progress', progress, this.bytesReceived);
-      if (progress === 100.0) {
-        this.sendPeer(ControlHeaders.FILE_END);
-        this.emit('done');
-      }
+      this.writer.push(chunk);
     })
     this.rs.on('paused', () => {
       this.emit('paused')

@@ -20,8 +20,12 @@ export default class SimplePeerFiles {
 
       let startingByte = 0
 
+
+
       const fileChannel = new Peer({
-        initiator: true
+        initiator: true,
+        // @ts-ignore the config exists on peer but is not exposed.
+        config: peer.config
       })
 
       fileChannel.on('signal', (signal: Peer.SignalData) => {
@@ -81,7 +85,9 @@ export default class SimplePeerFiles {
       const controlChannel = peer
 
       const fileChannel = new Peer({
-        initiator: false
+        initiator: false,
+        // @ts-ignore the config exists on peer but is not exposed.
+        config: peer.config
       })
 
       fileChannel.on('signal', (signal: Peer.SignalData) => {
@@ -90,6 +96,7 @@ export default class SimplePeerFiles {
 
         // File resume capability
         if (fileID in this.arrivals) {
+          // @ts-ignore
           start = this.arrivals[fileID].bytesReceived
         }
 

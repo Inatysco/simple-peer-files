@@ -61,7 +61,6 @@ class ReceiveStream extends Writable {
 export default class PeerFileReceive extends EventEmitter<Events> {
   public paused: boolean = false;
   public cancelled: boolean = false;
-  public bytesReceived: number = 0;
 
   public peer: SimplePeer.Instance;
   private rs: ReceiveStream;
@@ -92,8 +91,8 @@ export default class PeerFileReceive extends EventEmitter<Events> {
     });
     peer.pipe(this.rs)
 
-    this.writer.on('progress', p => {
-      this.emit('progress', p, this.bytesReceived);
+    this.writer.on('progress', (p, bytesReceived) => {
+      this.emit('progress', p, bytesReceived);
       if (p === 100.0) {
         this.sendPeer(ControlHeaders.FILE_END);
         this.emit('done');
@@ -107,7 +106,7 @@ export default class PeerFileReceive extends EventEmitter<Events> {
       this.fileData = []
     })
     this.rs.on('chunk', chunk => {
-      this.writer.push(chunk);
+      this.writer.write(chunk);
     })
     this.rs.on('paused', () => {
       this.emit('paused')
@@ -117,6 +116,9 @@ export default class PeerFileReceive extends EventEmitter<Events> {
     })
     this.rs.on('cancelled', () => {
       this.emit('cancelled')
+    })
+    this.rs.on('finish', chunk => {
+      this.writer.end()
     })
   }
 

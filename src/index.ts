@@ -65,7 +65,9 @@ export default class SimplePeerFiles {
         pfs.on('cancel', destroy)
 
         fileChannel.on('close', () => {
-          pfs.cancel()
+          if (pfs) {
+            pfs.cancel();
+          }
         })
 
         resolve(pfs)

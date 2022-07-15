@@ -57,11 +57,14 @@ export default class SimplePeerFiles {
           if (destroyed) return
 
           controlChannel.removeListener('data', controlDataHandler)
-          fileChannel.destroy()
 
           // garbage collect
           controlDataHandler = null
+          // Set pfs at null before destroy to avoid call to cancel on fileChannel close.
           pfs = null
+
+          fileChannel.destroy()
+
           destroyed = true
         }
 
@@ -133,17 +136,19 @@ export default class SimplePeerFiles {
           if (destroyed) return
 
           controlChannel.removeListener('data', controlDataHandler)
-          fileChannel.destroy()
-          delete this.arrivals[fileID]
 
           // garbage collect
           controlDataHandler = null
           pfs = null
+
+          fileChannel.destroy()
+          delete this.arrivals[fileID]
+
           destroyed = true
         }
 
-        pfs.on('done', destroy)
         pfs.on('cancel', destroy)
+        fileChannel.on('close', destroy);
 
         resolve(pfs)
       })

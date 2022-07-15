@@ -72,6 +72,8 @@ export default class PeerFileReceive extends EventEmitter<Events> {
   public fileType!: string;
   private writer: Duplex = null;
 
+  private isFileTransferred = false;
+
   constructor (peer: SimplePeer.Instance, writer: Duplex) {
     super()
     this.writer = writer;
@@ -87,6 +89,10 @@ export default class PeerFileReceive extends EventEmitter<Events> {
     this.rs = new ReceiveStream()
     this.peer = peer
     this.peer.on("error", err => {
+      // Ignore error if file transfer is finished as we don't need the channel anymore
+      if(this.isFileTransferred) {
+        return;
+      }
       this.emit('error', JSON.stringify(err, null, 2));
     });
     peer.pipe(this.rs)
@@ -94,6 +100,7 @@ export default class PeerFileReceive extends EventEmitter<Events> {
     this.writer.on('progress', (p, bytesReceived) => {
       this.emit('progress', p, bytesReceived);
       if (p === 100.0) {
+        this.isFileTransferred = true;
         this.sendPeer(ControlHeaders.FILE_END);
         this.emit('done');
       }
